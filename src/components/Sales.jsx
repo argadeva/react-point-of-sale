@@ -207,7 +207,7 @@ export default class Sales extends Component {
                     data-target="#modalProduct"
                     className="btn btn-secondary rounded-circle mr-2"
                   >
-                    <i class="fas fa-search"></i>
+                    <i className="fas fa-search"></i>
                   </button>
                 </nav>
                 <div className="px-2 py-4">
