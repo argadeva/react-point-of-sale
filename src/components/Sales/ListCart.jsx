@@ -38,24 +38,24 @@ const ListCart = ({ list, plusProduct, minProduct }) => {
             </div>
             <div className="cartbutton pl-2">
               <div className="row">
-                <div className="col">
+                <div className="col pr-0">
                   <button
                     type="button"
-                    className="btn btn-outline-success rounded-0"
+                    className="btn btn-sm btn-outline-success rounded-0"
                     onClick={handleMin}
                   >
                     -
                   </button>
                   <button
                     type="button"
-                    className="btn btn-outline-success rounded-0"
+                    className="btn btn-sm btn-outline-success rounded-0"
                     disabled
                   >
                     {cartList.qty}
                   </button>
                   <button
                     type="button"
-                    className="btn btn-outline-success rounded-0"
+                    className="btn btn-sm btn-outline-success rounded-0"
                     onClick={handlePlus}
                   >
                     +

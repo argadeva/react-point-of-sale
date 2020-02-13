@@ -15,7 +15,7 @@ export default class Home extends Component {
           <Sidebar />
           <div id="content">
             <h1>
-              <i class="fas fa-camera"></i>Home
+              <i className="fas fa-camera"></i>Home
             </h1>
           </div>
         </div>

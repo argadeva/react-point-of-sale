@@ -15,7 +15,8 @@ export default class Sales extends Component {
     idOrder: "",
     detailCheckout: [],
     ppn: "",
-    total: ""
+    total: "",
+    loading: true
   };
 
   inputScript = async () => {
@@ -41,7 +42,12 @@ export default class Sales extends Component {
         products: response.data.result
       })
     );
-    await this.inputScript();
+    await setTimeout(() => {
+      this.inputScript();
+      this.setState({
+        loading: false
+      });
+    }, 1000);
   };
 
   selectedProduct = product => {
@@ -142,7 +148,6 @@ export default class Sales extends Component {
           detailCheckout: response.data
         });
       });
-      console.log(this.state.detailCheckout);
     }
     await this.cancelCart();
   };
@@ -150,6 +155,22 @@ export default class Sales extends Component {
   render() {
     if (localStorage.usertoken === undefined) {
       this.props.history.push("/login");
+    } else if (this.state.loading === true) {
+      return (
+        <>
+          <div className="loader">
+            <div className="inner one" />
+            <div className="inner two" />
+            <div className="inner three" />
+            <span>
+              <br />
+              <br />
+              <br />
+              Loading...
+            </span>
+          </div>
+        </>
+      );
     }
     function formatNumber(num) {
       return "Rp. " + num.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1.");
@@ -180,7 +201,7 @@ export default class Sales extends Component {
               className="btn btn-secondary rounded-circle border-0"
               onClick={() => this.selectedProduct(products)}
             >
-              <i class="fas fa-share"></i>
+              <i className="fas fa-share"></i>
             </button>
           </td>
         </tr>
@@ -207,7 +228,7 @@ export default class Sales extends Component {
                     data-target="#modalProduct"
                     className="btn btn-secondary rounded-circle mr-2"
                   >
-                    <i class="fas fa-search"></i>
+                    <i className="fas fa-search"></i>
                   </button>
                 </nav>
                 <div className="px-2 py-4">
@@ -228,7 +249,7 @@ export default class Sales extends Component {
                       <li className="nav-item active">
                         <h5 className="font-weight-bold m-0">
                           Cart
-                          <button class="btn btn-sm btn-primary rounded-circle ml-2">
+                          <button className="btn btn-sm btn-primary rounded-circle ml-2">
                             &nbsp;{this.state.carts.length}&nbsp;
                           </button>
                         </h5>

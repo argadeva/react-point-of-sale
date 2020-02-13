@@ -2,13 +2,17 @@ import React, { Component } from "react";
 import API from "../axios/Api";
 import AddStocks from "./Stocks/AddStocks";
 import UpdateStocks from "./Stocks/UpdateStocks";
-
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
 import Sidebar from "./Sidebar";
+
+const MySwal = withReactContent(Swal);
 
 export default class Stocks extends Component {
   state = {
     Stocks: [],
-    editID: []
+    editID: [],
+    loading: true
   };
 
   inputScript = async () => {
@@ -38,13 +42,31 @@ export default class Stocks extends Component {
 
   componentDidMount = async () => {
     await this.getAPI();
-    await this.inputScript();
+    await setTimeout(() => {
+      this.inputScript();
+      this.setState({
+        loading: false
+      });
+    }, 1000);
   };
 
   handleRemove = data => {
-    API.delete(`/stocks/${data}`, {
-      headers: { "x-access-token": localStorage.usertoken }
-    }).then(() => this.getAPI());
+    MySwal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!"
+    }).then(result => {
+      if (result.value) {
+        API.delete(`/stocks/${data}`, {
+          headers: { "x-access-token": localStorage.usertoken }
+        }).then(() => this.getAPI());
+        Swal.fire("Deleted!", "Your file has been deleted.", "success");
+      }
+    });
   };
 
   handleUpdate = data => {
@@ -62,6 +84,22 @@ export default class Stocks extends Component {
       );
       if (checkUser !== "1") {
         this.props.history.push("/login");
+      } else if (this.state.loading === true) {
+        return (
+          <>
+            <div className="loader">
+              <div className="inner one" />
+              <div className="inner two" />
+              <div className="inner three" />
+              <span>
+                <br />
+                <br />
+                <br />
+                Loading...
+              </span>
+            </div>
+          </>
+        );
       }
     }
     let number = 1;

@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import Sidebar from "./Sidebar";
+import HistoryModal from "./History/HistoryModal";
 import API from "../axios/Api";
 import { Line } from "react-chartjs-2";
 
@@ -8,6 +9,8 @@ export default class History extends Component {
     history: [],
     checkout: [],
     income: [],
+    loading: true,
+    detailorder: [],
     chartData: {
       labels: [
         "January",
@@ -78,27 +81,23 @@ export default class History extends Component {
         checkout: response.data.result
       })
     );
-    await this.inputScript();
-    await API.get("/history/incomeweek", {
-      headers: { "x-access-token": localStorage.usertoken }
-    }).then(res => {
+    await setTimeout(() => {
+      this.inputScript();
       this.setState({
-        income: res.data.result
+        loading: false
       });
-    });
-    // let val = this.state.income.map(({ total }) => total);
-    // let day = this.state.income.map(({ period }) => period);
-    // this.setState(prevState => ({
-    //   chartData: {
-    //     ...prevState.chartData,
-    //     labels: this.state.income.map(({ period }) => period)
-    //   }, // copy all other key-value pairs of food object
-    //   datasets: {
-    //     // specific object of food object
-    //     ...prevState.chartData.datasets, // copy all pizza key-value pairs
-    //     data: this.state.income.map(({ total }) => total) // update value of specific key
-    //   }
-    // }));
+    }, 1000);
+  };
+
+  selectedOrders = orders => {
+    API.get(`/checkout/${orders.id}`, {
+      headers: { "x-access-token": localStorage.usertoken }
+    }).then(response =>
+      this.setState({
+        detailorder: response.data
+      })
+    );
+    console.log(this.state.detailorder);
   };
 
   render() {
@@ -111,6 +110,22 @@ export default class History extends Component {
       );
       if (checkUser !== "1") {
         this.props.history.push("/login");
+      } else if (this.state.loading === true) {
+        return (
+          <>
+            <div className="loader">
+              <div className="inner one" />
+              <div className="inner two" />
+              <div className="inner three" />
+              <span>
+                <br />
+                <br />
+                <br />
+                Loading...
+              </span>
+            </div>
+          </>
+        );
       }
     }
     function formatNumber(num) {
@@ -118,8 +133,8 @@ export default class History extends Component {
     }
     let number = 1;
     const orderTabels = this.state.checkout.map(orders => {
-      var getDate = orders.created_at.slice(0, 10).split("-");
-      var months = [
+      let getDate = orders.created_at.slice(0, 10).split("-");
+      let months = [
         "January",
         "February",
         "March",
@@ -133,8 +148,8 @@ export default class History extends Component {
         "November",
         "December"
       ];
-      var mlong = months[getDate[1].replace(/^0+/, "") - 1];
-      var _date = getDate[2] + " " + mlong + " " + getDate[0];
+      let mlong = months[getDate[1].replace(/^0+/, "") - 1];
+      let _date = getDate[2] + " " + mlong + " " + getDate[0];
       return (
         <tr key={orders.id}>
           <td>{number++}</td>
@@ -142,6 +157,16 @@ export default class History extends Component {
           <td>{orders.name}</td>
           <td>{_date}</td>
           <td>{formatNumber(orders.total)}</td>
+          <td>
+            <button
+              className="ml-2 btn btn-secondary rounded-circle"
+              data-toggle="modal"
+              data-target="#detailOrders"
+              onClick={() => this.selectedOrders(orders)}
+            >
+              <i className="fas fa-receipt"></i>
+            </button>
+          </td>
         </tr>
       );
     });
@@ -247,6 +272,7 @@ export default class History extends Component {
                             <th>CASHIER</th>
                             <th>DATE</th>
                             <th>AMOUNT</th>
+                            <th>DETAILS</th>
                           </tr>
                         </thead>
                         <tbody>{orderTabels}</tbody>
@@ -258,6 +284,7 @@ export default class History extends Component {
             </div>
           </div>
         </div>
+        <HistoryModal detailData={this.state.detailorder} />
       </>
     );
   }
